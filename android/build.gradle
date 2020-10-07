@@ -38,5 +38,5 @@ dependencies {
     implementation 'io.particle:cloudsdk:0.5.0'
     //Because it can not import io.flutter.plugin...
     //You can change this line follow your path to flutter sdk
-//    implementation files('C:\\Users\\minhm\\Documents\\flutter\\bin\\cache\\artifacts\\engine\\android-x64\\flutter.jar')
+    //implementation files('C:\\Users\\minhm\\Documents\\flutter\\bin\\cache\\artifacts\\engine\\android-x64\\flutter.jar')
 }

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'StringeeClient.dart';
+import 'stringee_client.dart';
 
 enum StringeeCallEventType {
   DidChangeSignalingState,

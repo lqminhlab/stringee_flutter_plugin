@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import 'StringeeCall.dart';
+import 'stringee_call.dart';
 
 enum StringeeClientEventType {
   DidConnect,
@@ -85,6 +85,8 @@ class StringeeClient {
     assert(event != null);
 
     final Map<dynamic, dynamic> map = event;
+    print("----Current event----");
+    print(map?.toString());
 
     switch (map['event']) {
       case 'didConnect':
