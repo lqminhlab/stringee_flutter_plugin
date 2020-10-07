@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:stringee_flutter_plugin/stringee_flutter_plugin.dart';
+
+import 'chat.dart';
+import 'main.dart';
 
 class FormChat extends StatefulWidget {
   @override
@@ -6,14 +10,12 @@ class FormChat extends StatefulWidget {
 }
 
 class _FormChatState extends State<FormChat> {
-  String myUserId = 'Not connected...';
-
   @override
   Widget build(BuildContext context) {
     Widget topText = new Container(
       padding: EdgeInsets.only(left: 10.0, top: 10.0),
       child: new Text(
-        'Connected as: $myUserId',
+        'Connected as: ${client.userId}',
         style: new TextStyle(
           color: Colors.black,
           fontSize: 20.0,
@@ -44,6 +46,8 @@ class MyForm extends StatefulWidget {
 }
 
 class _MyFormState extends State<MyForm> {
+  String strUserId = "";
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -86,9 +90,20 @@ class _MyFormState extends State<MyForm> {
 
   void _changeText(String val) {
     print("Change: $val");
+    strUserId = val;
   }
 
   void _voiceCallTapped() {
-    print("Tap connect chat");
+    if (strUserId.isEmpty || !client.hasConnected) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => Chat(
+                fromUserId: client.userId,
+                toUserId: strUserId,
+                stringeeChat: StringeeChat(),
+              )),
+    );
   }
 }

@@ -1,7 +1,4 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
-//import 'package:simple_permissions/simple_permissions.dart';
 import 'package:stringee_flutter_plugin/stringee_flutter_plugin.dart';
 
 StringeeCall _stringeeCall;

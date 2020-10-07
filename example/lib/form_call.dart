@@ -2,19 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:stringee_flutter_plugin/stringee_flutter_plugin.dart';
 
 import 'Call.dart';
-
-var user1 =
-    'eyJjdHkiOiJzdHJpbmdlZS1hcGk7dj0xIiwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJTS0NsejhzQ2tKeDNzdU13SmdCdDJ6bUc2T01JbVRYb2Y1LTE1NzQwNjk1MTciLCJpc3MiOiJTS0NsejhzQ2tKeDNzdU13SmdCdDJ6bUc2T01JbVRYb2Y1IiwiZXhwIjoxNTc2NjYxNTE3LCJ1c2VySWQiOiJ1c2VyMSJ9.ZT4Uynv3kVjfxXWDvDNplHsKiEYgfdKn24ST3ZBm5Fk';
-var user2 =
-    'eyJjdHkiOiJzdHJpbmdlZS1hcGk7dj0xIiwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJTS0NsejhzQ2tKeDNzdU13SmdCdDJ6bUc2T01JbVRYb2Y1LTE1NzQwNjk1MzQiLCJpc3MiOiJTS0NsejhzQ2tKeDNzdU13SmdCdDJ6bUc2T01JbVRYb2Y1IiwiZXhwIjoxNTc2NjYxNTM0LCJ1c2VySWQiOiJ1c2VyMiJ9.nPE0x3MvVnHgqTJZTHnrDWVFpRpeJTKzMvQxruJTJbY';
-
-var client = StringeeClient();
-String strUserId = "";
+import 'main.dart';
 
 class FormCall extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _FormCallState();
   }
 }
@@ -26,6 +18,8 @@ class _FormCallState extends State<FormCall> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    myUserId = client.userId;
 
     // Lắng nghe sự kiện của StringeeClient(kết nối, cuộc gọi đến...)
     client.eventStreamController.stream.listen((event) {
@@ -52,9 +46,6 @@ class _FormCallState extends State<FormCall> {
           break;
       }
     });
-
-    // Connect
-    client.connect(user2);
   }
 
   @override
@@ -121,11 +112,11 @@ class MyForm extends StatefulWidget {
 }
 
 class _MyFormState extends State<MyForm> {
+  String strUserId = "";
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return new Form(
-//      key: _formKey,
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
