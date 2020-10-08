@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:stringee_flutter_plugin/src/model/conversation.dart';
+import 'package:stringee_flutter_plugin/src/model/message.dart';
+
 import 'stringee_client.dart';
 
 enum StringeeConversationType { chat, group }
@@ -23,7 +26,6 @@ class StringeeChat {
 
   String get toAlias => _toAlias;
 
-
   StringeeChat();
 
   void initFromInfo(Map<dynamic, dynamic> callInfo) {
@@ -38,82 +40,98 @@ class StringeeChat {
 
   //=====================================================================
   //Conversation
-  Future<Map<dynamic, dynamic>> createConversation(
+  Future<bool> createConversation(
       StringeeConversationType type, List<String> userIds) async {
     Map params;
+    bool status = false;
     if (type == StringeeConversationType.chat) {
       params = {"userId": userIds.first};
-      return await StringeeClient.methodChannel
+      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
           .invokeMethod("createConversationChat", params);
+      status = result['status'] ?? false;
     } else if (type == StringeeConversationType.group) {
       params = {"userIds": userIds};
-      return await StringeeClient.methodChannel
+      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
           .invokeMethod("createConversationGroup", params);
-    } else {
-      return throw NullThrownError();
+      if (result != null) status = result['status'] ?? false;
     }
+    return status;
   }
 
-  Future<Map<dynamic, dynamic>> getConversations({int count = 20}) async {
+  Future<List<Conversation>> getConversations({int count = 20}) async {
     Map params;
+    List<Conversation> conversations = [];
     if (count != null) {
       params = {"count": count};
-      return await StringeeClient.methodChannel
-          .invokeMethod("getConversations", params);
-    } else {
-      return throw NullThrownError();
     }
+    Map<dynamic, dynamic> result = await StringeeClient.methodChannel
+        .invokeMethod("getConversations", params);
+    if (result != null &&
+        (result['status'] ?? false) &&
+        result['conversations'] != null) {
+      conversations = Conversation.listFromJson(result['conversations']);
+    }
+    return conversations;
   }
 
-  Future<Map<dynamic, dynamic>> deleteConversation(
-      String conversationId) async {
+  Future<bool> deleteConversation(String conversationId) async {
     Map params;
+    bool status = false;
     if (conversationId != null) {
       params = {"conversationId": conversationId};
-      return await StringeeClient.methodChannel
+      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
           .invokeMethod("deleteConversation", params);
-    } else {
-      return throw NullThrownError();
+      if (result != null) status = result['status'] ?? false;
     }
+    return status;
   }
 
   //=====================================================================
   //Message
-  Future<Map<dynamic, dynamic>> sendMessage(StringeeMessageType type,
-      String conversationId, String message) async {
+  Future<bool> sendMessage(
+      StringeeMessageType type, String conversationId, String message) async {
     Map params;
+    bool status = false;
     if (conversationId != null && message != null && type != null) {
       params = {"conversationId": conversationId, "message": message};
-      return await StringeeClient.methodChannel
+      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
           .invokeMethod("sendMessageText", params);
+      if (result != null) status = result['status'] ?? false;
     } else {
-      return throw NullThrownError();
+      print(
+          "--Send message need: conversationId != null && message != null && type != null");
     }
+    return status;
   }
 
-  Future<Map<dynamic, dynamic>> getMessages(String conversationId,
+  Future<List<Message>> getMessages(String conversationId,
       {int count = 20}) async {
     Map params;
+    List<Message> messages = [];
     if (conversationId != null && count != null) {
       params = {"conversationId": conversationId, "count": count};
-      return await StringeeClient.methodChannel
+      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
           .invokeMethod("getMessageFormStringee", params);
-    } else {
-      return throw NullThrownError();
+      if (result != null &&
+          (result['status'] ?? false) &&
+          result['messages'] != null) {
+        messages = Message.listFromJson(result['messages']);
+      }
     }
-  }
-  Future<Map<dynamic, dynamic>> deleteMessage(
-      String messageId) async {
-    Map params;
-    if (messageId != null) {
-      params = {"messageId": messageId};
-      return await StringeeClient.methodChannel
-          .invokeMethod("deleteMessage", params);
-    } else {
-      return throw NullThrownError();
-    }
+    return messages;
   }
 
+  Future<bool> deleteMessage(String messageId) async {
+    Map params;
+    bool status = false;
+    if (messageId != null) {
+      params = {"messageId": messageId};
+      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
+          .invokeMethod("deleteMessage", params);
+      if (result != null) status = result['status'] ?? false;
+    }
+    return status;
+  }
 
   void destroy() {}
 

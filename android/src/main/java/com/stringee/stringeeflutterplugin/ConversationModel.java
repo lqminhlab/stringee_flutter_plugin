@@ -10,10 +10,11 @@ public class ConversationModel {
     String name;
     List<User> participants;
     Long timeCreated;
+    String lastMessage;
     int state;
     int unread;
 
-    public ConversationModel(String id, String creator, String name, List<User> participants, Long timeCreated, int state, int unread){
+    public ConversationModel(String id, String creator, String name, List<User> participants, Long timeCreated, int state, int unread, String lastMessage) {
         this.id = id;
         this.creator = creator;
         this.name = name;
@@ -21,5 +22,6 @@ public class ConversationModel {
         this.state = state;
         this.unread = unread;
         this.participants = participants;
+        this.lastMessage = lastMessage;
     }
 }
