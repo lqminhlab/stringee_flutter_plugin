@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// conversation : "conv-vn-1-0GMF7VCFGZ-1602010962467"
 /// creator : "lab_user01"
 /// id : "msg-vn-1-0GMF7VCFGZ-1602011212701"
@@ -14,28 +16,35 @@ class Message {
   int _timeCreated;
 
   String get conversation => _conversation;
+
   String get creator => _creator;
+
   String get id => _id;
+
   String get message => _message;
+
   String get state => _state;
+
   int get timeCreated => _timeCreated;
 
-  Message({
-      String conversation, 
-      String creator, 
-      String id, 
-      String message, 
-      String state, 
-      int timeCreated}){
+  Message(
+      {String conversation,
+      String creator,
+      String id,
+      String message,
+      String state,
+      int timeCreated}) {
     _conversation = conversation;
     _creator = creator;
     _id = id;
     _message = message;
     _state = state;
     _timeCreated = timeCreated;
-}
+  }
 
   Message.fromJson(dynamic json) {
+    if (json == null) return;
+    if (json is Map) json = jsonDecode(json);
     _conversation = json["conversation"];
     _creator = json["creator"];
     _id = json["id"];
@@ -58,5 +67,4 @@ class Message {
     map["timeCreated"] = _timeCreated;
     return map;
   }
-
 }

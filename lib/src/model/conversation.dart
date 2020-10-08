@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'stringee_user.dart';
 
 class Conversation {
@@ -22,6 +24,7 @@ class Conversation {
 
   factory Conversation.fromJson(dynamic json) {
     if (json == null) return null;
+    if(json is Map) json = jsonDecode(json);
     return Conversation(
         id: json['id'],
         name: json['name'],

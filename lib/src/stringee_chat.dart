@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:stringee_flutter_plugin/src/model/conversation.dart';
 import 'package:stringee_flutter_plugin/src/model/message.dart';
@@ -69,7 +70,7 @@ class StringeeChat {
     if (result != null &&
         (result['status'] ?? false) &&
         result['conversations'] != null) {
-      conversations = Conversation.listFromJson(result['conversations']);
+      conversations = Conversation.listFromJson(jsonDecode(result['conversations']));
     }
     return conversations;
   }
@@ -115,7 +116,7 @@ class StringeeChat {
       if (result != null &&
           (result['status'] ?? false) &&
           result['messages'] != null) {
-        messages = Message.listFromJson(result['messages']);
+        messages = Message.listFromJson(jsonDecode(result['messages']));
       }
     }
     return messages;

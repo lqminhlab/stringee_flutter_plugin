@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class StringeeUser {
   String userId;
   String name;
@@ -6,8 +8,9 @@ class StringeeUser {
 
   StringeeUser({this.userId, this.name, this.avatarUrl, this.role});
 
-  factory StringeeUser.fromJson(Map<String, dynamic> json) {
+  factory StringeeUser.fromJson(dynamic json) {
     if (json == null) return null;
+    if(json is Map) json = jsonDecode(json);
     return StringeeUser(
         name: json['name'],
         avatarUrl: json['avatarUrl'],
