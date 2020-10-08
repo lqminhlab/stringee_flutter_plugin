@@ -127,7 +127,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             createConversationGroup((List<String>) call.argument("userIds"), result);
         } else if (call.method.equals("getConversation")) {
             getConversation(result);
-        }else if (call.method.equals("getConversations")) {
+        } else if (call.method.equals("getConversations")) {
             getConversations((int) call.argument("count"), result);
         } else if (call.method.equals("deleteConversation")) {
             deleteConversation((String) call.argument("conversationId"), result);
@@ -1112,12 +1112,12 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         });
     }
 
-    public void getConversation(final  MethodChannel.Result result){
+    public void getConversation(final MethodChannel.Result result) {
 
     }
 
-    public void getConversations(int count, final  MethodChannel.Result result){
-        if(client == null){
+    public void getConversations(int count, final MethodChannel.Result result) {
+        if (client == null) {
             Map map = new HashMap();
             map.put("status", false);
             map.put("code", -1);
@@ -1128,7 +1128,15 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         client.getLastConversations(count, new CallbackListener<List<Conversation>>() {
             @Override
             public void onSuccess(final List<Conversation> conversations) {
-                final String stringConversation = new Gson().toJson(conversations);
+                final String stringConversationPrint = new Gson().toJson(conversations);
+                System.out.println("---- Conversation ----");
+                System.out.println(stringConversationPrint);
+                List<ConversationModel> customConversation = new ArrayList<>();
+                for (Conversation conversation : conversations
+                ) {
+                    customConversation.add(new ConversationModel(conversation.getId(), conversation.getCreator(), conversation.getName(), conversation.getParticipants(), conversation.getCreateAt(), conversation.getState(), conversation.getTotalUnread()));
+                }
+                final String stringConversation = new Gson().toJson(customConversation);
                 System.out.println("---- Current conversation ----");
                 System.out.println(stringConversation);
                 handler.post(new Runnable() {
@@ -1143,6 +1151,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                     }
                 });
             }
+
             @Override
             public void onError(final StringeeError error) {
                 handler.post(new Runnable() {
@@ -1286,18 +1295,19 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         });
     }
 
-    public void sendMessagePicture(String conversationId, final MethodChannel.Result result){
+    public void sendMessagePicture(String conversationId, final MethodChannel.Result result) {
 
     }
 
-    public void sendMessageAudio(String conversationId, final MethodChannel.Result result){
+    public void sendMessageAudio(String conversationId, final MethodChannel.Result result) {
 
     }
 
-    public void getMessageFormLocal(String conversationId, int count, final  MethodChannel.Result result){
+    public void getMessageFormLocal(String conversationId, int count, final MethodChannel.Result result) {
 
     }
-    public  void getMessageFormStringee(String conversationId, final int count, final  MethodChannel.Result result){
+
+    public void getMessageFormStringee(String conversationId, final int count, final MethodChannel.Result result) {
         if (client == null) {
             Map map = new HashMap();
             map.put("status", false);
@@ -1312,9 +1322,12 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                 conversation.getLastMessages(client, count, new CallbackListener<List<Message>>() {
                     @Override
                     public void onSuccess(final List<Message> messages) {
+                        final String stringMessagesPrint = new Gson().toJson(messages);
+                        System.out.println("---- Messages ----");
+                        System.out.println(stringMessagesPrint);
                         List<MessageModel> customMessages = new ArrayList<>();
-                        for (Message msg: messages
-                             ) {
+                        for (Message msg : messages
+                        ) {
                             customMessages.add(new MessageModel(msg.a, msg.z, msg.c, msg.l, msg.f, msg.i));
                         }
                         final String stringMessages = new Gson().toJson(customMessages);
@@ -1332,6 +1345,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                             }
                         });
                     }
+
                     @Override
                     public void onError(final StringeeError error) {
                         handler.post(new Runnable() {
@@ -1365,7 +1379,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         });
     }
 
-    public void markAsRead(final  MethodChannel.Result result){
+    public void markAsRead(final MethodChannel.Result result) {
         Message message = new Message();
         message.markAsRead(client, new StatusListener() {
             @Override
@@ -1381,6 +1395,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                     }
                 });
             }
+
             @Override
             public void onError(final StringeeError error) {
                 handler.post(new Runnable() {
@@ -1397,11 +1412,11 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         });
     }
 
-    public void deleteMessage(String messageId, final MethodChannel.Result result){
+    public void deleteMessage(String messageId, final MethodChannel.Result result) {
 
     }
 
-    public void pinOrUnpinMessage(String messageId, Boolean status, final MethodChannel.Result result){
+    public void pinOrUnpinMessage(String messageId, Boolean status, final MethodChannel.Result result) {
 
     }
 }
