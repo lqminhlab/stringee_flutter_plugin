@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.google.gson.Gson;
 import com.stringee.StringeeClient;
 import com.stringee.call.StringeeCall;
 import com.stringee.call.StringeeCall2;
@@ -17,6 +18,7 @@ import com.stringee.messaging.Message;
 import com.stringee.messaging.User;
 import com.stringee.messaging.listeners.CallbackListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1126,6 +1128,9 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         client.getLastConversations(count, new CallbackListener<List<Conversation>>() {
             @Override
             public void onSuccess(final List<Conversation> conversations) {
+                final String stringConversation = new Gson().toJson(conversations);
+                System.out.println("---- Current conversation ----");
+                System.out.println(stringConversation);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1133,7 +1138,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                         map.put("status", true);
                         map.put("code", 0);
                         map.put("message", "Success!");
-                        map.put("conversations", conversations);
+                        map.put("conversations", stringConversation);
                         result.success(map);
                     }
                 });
@@ -1147,7 +1152,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                         map.put("status", false);
                         map.put("code", error.getCode());
                         map.put("message", error.getMessage());
-                        map.put("conversations", new ArrayList<>());
+                        map.put("conversations", "[]");
                         result.success(map);
                     }
                 });
@@ -1307,6 +1312,14 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                 conversation.getLastMessages(client, count, new CallbackListener<List<Message>>() {
                     @Override
                     public void onSuccess(final List<Message> messages) {
+                        List<MessageModel> customMessages = new ArrayList<>();
+                        for (Message msg: messages
+                             ) {
+                            customMessages.add(new MessageModel(msg.a, msg.z, msg.c, msg.l, msg.f, msg.i));
+                        }
+                        final String stringMessages = new Gson().toJson(customMessages);
+                        System.out.println("---- Current messages ----");
+                        System.out.println(stringMessages);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -1314,7 +1327,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                                 map.put("status", true);
                                 map.put("code", 0);
                                 map.put("message", "Success!");
-                                map.put("messages", messages);
+                                map.put("messages", stringMessages);
                                 result.success(map);
                             }
                         });
@@ -1328,7 +1341,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                                 map.put("status", false);
                                 map.put("code", error.getCode());
                                 map.put("message", error.getMessage());
-                                map.put("messages", new ArrayList<>());
+                                map.put("messages", "[]");
                                 result.success(map);
                             }
                         });

@@ -12,7 +12,7 @@ public class StringeeManager {
     private StringeeClient mClient;
     private Map<String, StringeeCall> callsMap = new HashMap<>();
 
-    public static synchronized StringeeManager getInstance() {
+    public static StringeeManager getInstance() {
         if (stringeeManager == null) {
             stringeeManager = new StringeeManager();
         }

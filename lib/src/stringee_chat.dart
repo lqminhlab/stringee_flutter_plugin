@@ -82,7 +82,7 @@ class StringeeChat {
   Future<Map<dynamic, dynamic>> sendMessage(StringeeMessageType type,
       String conversationId, String message) async {
     Map params;
-    if (conversationId != null && message == null && type != null) {
+    if (conversationId != null && message != null && type != null) {
       params = {"conversationId": conversationId, "message": message};
       return await StringeeClient.methodChannel
           .invokeMethod("sendMessageText", params);
