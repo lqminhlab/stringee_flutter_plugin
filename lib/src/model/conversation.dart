@@ -10,6 +10,7 @@ class Conversation {
   List<StringeeUser> participants;
   int timeCreated;
   LastMessage lastMessage;
+  int lastTime;
   int state;
   int unread;
 
@@ -21,6 +22,7 @@ class Conversation {
       this.lastMessage,
       this.participants,
       this.timeCreated,
+      this.lastTime,
       this.unread});
 
   factory Conversation.fromJson(dynamic json) {
@@ -36,6 +38,7 @@ class Conversation {
               ? StringeeUser.listFromJson(json['participants'])
               : [],
           state: json['state'],
+          lastTime: json['lastTime'],
           timeCreated: json['timeCreated'],
           unread: json['unread']);
     } catch (e) {
@@ -51,6 +54,7 @@ class Conversation {
   Map<String, dynamic> toJson() {
     var map = <String, dynamic>{};
     map["id"] = this.id;
+    map['lastTime'] = this.lastTime;
     map["creator"] = this.creator;
     map["name"] = this.name;
     map["lastMessage"] = this.lastMessage;

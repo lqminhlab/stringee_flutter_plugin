@@ -1134,7 +1134,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                 List<ConversationModel> customConversation = new ArrayList<>();
                 for (Conversation conversation : conversations
                 ) {
-                    customConversation.add(new ConversationModel(conversation.getId(), conversation.getCreator(), conversation.getName(), conversation.getParticipants(), conversation.getCreateAt(), conversation.getState(), conversation.getTotalUnread(), conversation.getLastMsg()));
+                    customConversation.add(new ConversationModel(conversation.getId(), conversation.getCreator(), conversation.getName(), conversation.getParticipants(), conversation.getCreateAt(), conversation.getState(), conversation.getTotalUnread(), conversation.getLastMsg(), conversation.getLastTimeNewMsg()));
                 }
                 final String stringConversation = new Gson().toJson(customConversation);
                 System.out.println("---- Current conversation ----");
