@@ -25,7 +25,7 @@ import com.stringee.messaging.Message;
 
 public class MessageModel {
     String id;
-    int type
+    int type;
     String creator;
     String conversation;
     String message;
