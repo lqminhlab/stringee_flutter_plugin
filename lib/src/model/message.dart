@@ -8,12 +8,15 @@ import 'dart:convert';
 /// timeCreated : 0
 
 class Message {
+  int _type;
   String _conversation;
   String _creator;
   String _id;
   String _message;
   String _state;
   int _timeCreated;
+
+  int get type => _type;
 
   String get conversation => _conversation;
 
@@ -31,12 +34,14 @@ class Message {
       {String conversation,
       String creator,
       String id,
+        int type,
       String message,
       String state,
       int timeCreated}) {
     _conversation = conversation;
     _creator = creator;
     _id = id;
+    _type = type;
     _message = message;
     _state = state;
     _timeCreated = timeCreated;
@@ -52,6 +57,7 @@ class Message {
       _message = json["message"];
       _state = json["state"];
       _timeCreated = json["timeCreated"];
+      _type = json['type'];
     } catch (e) {
       print('--error map message:$e');
       return;
@@ -69,6 +75,7 @@ class Message {
     map["id"] = _id;
     map["message"] = _message;
     map["state"] = _state;
+    map['type'] = _type;
     map["timeCreated"] = _timeCreated;
     return map;
   }

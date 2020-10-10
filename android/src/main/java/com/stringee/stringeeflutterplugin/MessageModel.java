@@ -25,14 +25,16 @@ import com.stringee.messaging.Message;
 
 public class MessageModel {
     String id;
+    int type
     String creator;
     String conversation;
     String message;
     Long timeCreated;
     Message.State state;
 
-    public MessageModel(String id, String creator, String conversation, String message, Long timeCreated, Message.State state){
+    public MessageModel(String id, int type, String creator, String conversation, String message, Long timeCreated, Message.State state){
         this.id = id;
+        this.type = type;
         this.creator = creator;
         this.conversation = conversation;
         this.message = message;

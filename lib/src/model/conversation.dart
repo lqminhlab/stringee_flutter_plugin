@@ -9,7 +9,7 @@ class Conversation {
   String name;
   List<StringeeUser> participants;
   int timeCreated;
-  Message lastMessage;
+  LastMessage lastMessage;
   int state;
   int unread;
 
@@ -31,7 +31,7 @@ class Conversation {
           id: json['id']?.toString(),
           name: json['name']?.toString(),
           creator: json['creator']?.toString(),
-          lastMessage: Message.fromJson(json['lastMessage']),
+          lastMessage: LastMessage.fromJson(json['lastMessage']),
           participants: json['participants'] != null
               ? StringeeUser.listFromJson(json['participants'])
               : [],
@@ -57,5 +57,28 @@ class Conversation {
     map["state"] = this.state;
     map["timeCreated"] = this.timeCreated;
     return map;
+  }
+}
+
+class LastMessage {
+  int messageType;
+  String text;
+  String content;
+
+  LastMessage({this.messageType, this.content, this.text});
+
+  factory LastMessage.fromJson(dynamic json) {
+    try {
+      if (json == null) return null;
+      if (!(json is Map)) json = jsonDecode(json);
+      return LastMessage(
+        messageType: json['messageType'] is int ? json['messageType'] : 0,
+        content: json['content']?.toString(),
+        text: json['text']?.toString(),
+      );
+    } catch (e) {
+      print('--error map last message:$e');
+      return null;
+    }
   }
 }
