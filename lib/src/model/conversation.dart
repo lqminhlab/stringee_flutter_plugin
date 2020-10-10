@@ -24,19 +24,24 @@ class Conversation {
       this.unread});
 
   factory Conversation.fromJson(dynamic json) {
-    if (json == null) return null;
-    if(!json is Map) json = jsonDecode(json);
-    return Conversation(
-        id: json['id']?.toString(),
-        name: json['name']?.toString(),
-        creator: json['creator']?.toString(),
-        lastMessage: Message.fromJson(json['lastMessage']),
-        participants: json['participants'] != null
-            ? StringeeUser.listFromJson(json['participants'])
-            : [],
-        state: json['state'],
-        timeCreated: json['timeCreated'],
-        unread: json['unread']);
+    try {
+      if (json == null) return null;
+      if (!json is Map) json = jsonDecode(json);
+      return Conversation(
+          id: json['id']?.toString(),
+          name: json['name']?.toString(),
+          creator: json['creator']?.toString(),
+          lastMessage: Message.fromJson(json['lastMessage']),
+          participants: json['participants'] != null
+              ? StringeeUser.listFromJson(json['participants'])
+              : [],
+          state: json['state'],
+          timeCreated: json['timeCreated'],
+          unread: json['unread']);
+    } catch (e) {
+      print('--error map conversation:$e');
+      return null;
+    }
   }
 
   static List<Conversation> listFromJson(dynamic listJson) => listJson != null

@@ -43,14 +43,19 @@ class Message {
   }
 
   Message.fromJson(dynamic json) {
-    if (json == null) return;
-    if (!json is Map) json = jsonDecode(json);
-    _conversation = json["conversation"];
-    _creator = json["creator"];
-    _id = json["id"];
-    _message = json["message"];
-    _state = json["state"];
-    _timeCreated = json["timeCreated"];
+    try {
+      if (json == null) return;
+      if (!json is Map) json = jsonDecode(json);
+      _conversation = json["conversation"];
+      _creator = json["creator"];
+      _id = json["id"];
+      _message = json["message"];
+      _state = json["state"];
+      _timeCreated = json["timeCreated"];
+    } catch (e) {
+      print('--error map message:$e');
+      return;
+    }
   }
 
   static List<Message> listFromJson(dynamic listJson) => listJson != null

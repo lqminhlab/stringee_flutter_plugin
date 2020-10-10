@@ -9,13 +9,18 @@ class StringeeUser {
   StringeeUser({this.userId, this.name, this.avatarUrl, this.role});
 
   factory StringeeUser.fromJson(dynamic json) {
-    if (json == null) return null;
-    if(!json is Map) json = jsonDecode(json);
-    return StringeeUser(
-        name: json['name'],
-        avatarUrl: json['avatarUrl'],
-        role: json['role'],
-        userId: json['userId']);
+    try {
+      if (json == null) return null;
+      if (!json is Map) json = jsonDecode(json);
+      return StringeeUser(
+          name: json['name'],
+          avatarUrl: json['avatarUrl'],
+          role: json['role'],
+          userId: json['userId']);
+    } catch (e) {
+      print('--error map user:$e');
+      return null;
+    }
   }
 
   static List<StringeeUser> listFromJson(dynamic listJson) => listJson != null
