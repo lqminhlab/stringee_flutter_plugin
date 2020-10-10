@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:stringee_flutter_plugin/src/model/models.dart';
 import 'stringee_user.dart';
 
 class Conversation {
@@ -8,7 +9,7 @@ class Conversation {
   String name;
   List<StringeeUser> participants;
   int timeCreated;
-  String lastMessage;
+  Message lastMessage;
   int state;
   int unread;
 
@@ -24,12 +25,12 @@ class Conversation {
 
   factory Conversation.fromJson(dynamic json) {
     if (json == null) return null;
-    if(json is Map) json = jsonDecode(json);
+    if(!json is Map) json = jsonDecode(json);
     return Conversation(
-        id: json['id'],
-        name: json['name'],
-        creator: json['creator'],
-        lastMessage: json['lastMessage'],
+        id: json['id']?.toString(),
+        name: json['name']?.toString(),
+        creator: json['creator']?.toString(),
+        lastMessage: Message.fromJson(json['lastMessage']),
         participants: json['participants'] != null
             ? StringeeUser.listFromJson(json['participants'])
             : [],
