@@ -1,0 +1,2 @@
+-keep class com.stringee.stringeeflutterplugin.ConversationModel**
+-keep class com.stringee.stringeeflutterplugin.MessageModel**
