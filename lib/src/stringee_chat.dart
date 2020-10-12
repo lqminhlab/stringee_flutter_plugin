@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:stringee_flutter_plugin/src/model/conversation.dart';
 import 'package:stringee_flutter_plugin/src/model/message.dart';
+import 'package:toast/toast.dart';
 
 import 'stringee_client.dart';
 
@@ -59,18 +61,26 @@ class StringeeChat {
     return status;
   }
 
-  Future<List<Conversation>> getConversations({int count = 20}) async {
+  Future<List<Conversation>> getConversations(BuildContext context,
+      {int count = 20}) async {
     Map params;
     List<Conversation> conversations = [];
-    if (count != null) {
-      params = {"count": count};
-    }
-    Map<dynamic, dynamic> result = await StringeeClient.methodChannel
-        .invokeMethod("getConversations", params);
-    if (result != null &&
-        (result['status'] ?? false) &&
-        result['conversations'] != null) {
-      conversations = Conversation.listFromJson(jsonDecode(result['conversations']));
+    try {
+      if (count != null) {
+        params = {"count": count};
+      }
+      Map<dynamic, dynamic> result = await StringeeClient.methodChannel
+          .invokeMethod("getConversations", params);
+      if (result != null &&
+          (result['status'] ?? false) &&
+          result['conversations'] != null) {
+        conversations =
+            Conversation.listFromJson(jsonDecode(result['conversations']));
+      }
+      Toast.show(result['conversations'] ?? "Gett conversation null!", context,
+          duration: 10);
+    } catch (e) {
+      Toast.show("Gett conversations error: $e!", context, duration: 10);
     }
     return conversations;
   }
@@ -105,19 +115,25 @@ class StringeeChat {
     return status;
   }
 
-  Future<List<Message>> getMessages(String conversationId,
+  Future<List<Message>> getMessages(String conversationId, BuildContext context,
       {int count = 20}) async {
     Map params;
     List<Message> messages = [];
-    if (conversationId != null && count != null) {
-      params = {"conversationId": conversationId, "count": count};
-      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
-          .invokeMethod("getMessageFormStringee", params);
-      if (result != null &&
-          (result['status'] ?? false) &&
-          result['messages'] != null) {
-        messages = Message.listFromJson(jsonDecode(result['messages']));
+    try {
+      if (conversationId != null && count != null) {
+        params = {"conversationId": conversationId, "count": count};
+        final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
+            .invokeMethod("getMessageFormStringee", params);
+        if (result != null &&
+            (result['status'] ?? false) &&
+            result['messages'] != null) {
+          messages = Message.listFromJson(jsonDecode(result['messages']));
+        }
+        Toast.show(result['messages'] ?? "Gett messages null!", context,
+            duration: 10);
       }
+    } catch (e) {
+      Toast.show("Gett messages error: $e!", context, duration: 10);
     }
     return messages;
   }
