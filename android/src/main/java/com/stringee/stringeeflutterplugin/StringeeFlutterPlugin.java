@@ -3,7 +3,6 @@ package com.stringee.stringeeflutterplugin;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.stringee.StringeeClient;
@@ -19,7 +18,7 @@ import com.stringee.messaging.Message;
 import com.stringee.messaging.User;
 import com.stringee.messaging.listeners.CallbackListener;
 
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1129,11 +1128,9 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         client.getLastConversations(count, new CallbackListener<List<Conversation>>() {
             @Override
             public void onSuccess(final List<Conversation> conversations) {
-                Toast.makeText(registrar.context(), conversations.toString(), Toast.LENGTH_LONG).show();
                 final String stringConversationPrint = new Gson().toJson(conversations);
                 System.out.println("---- Conversation ----");
                 System.out.println(stringConversationPrint);
-                Toast.makeText(registrar.context(), stringConversationPrint, Toast.LENGTH_LONG).show();
                 List<ConversationModel> customConversation = new ArrayList<>();
                 for (Conversation conversation : conversations
                 ) {
@@ -1150,6 +1147,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                         map.put("code", 0);
                         map.put("message", "Success!");
                         map.put("conversations", stringConversation);
+                        map.put("debug", stringConversationPrint);
                         result.success(map);
                     }
                 });
@@ -1398,6 +1396,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                                 map.put("code", 0);
                                 map.put("message", "Success!");
                                 map.put("messages", stringMessages);
+                                map.put("debug", stringMessagesPrint);
                                 result.success(map);
                             }
                         });

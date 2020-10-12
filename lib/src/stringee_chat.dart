@@ -44,7 +44,7 @@ class StringeeChat {
 
   //=====================================================================
   //Conversation
-  Future<bool> createConversation(
+  Future<bool> createConversation(context,
       StringeeConversationType type, List<String> userIds) async {
     Map params;
     bool status = false;
@@ -53,6 +53,7 @@ class StringeeChat {
       final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
           .invokeMethod("createConversationChat", params);
       status = result['status'] ?? false;
+      Toast.show(result['message'], context);
     } else if (type == StringeeConversationType.group) {
       params = {"userIds": userIds};
       final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
@@ -79,6 +80,8 @@ class StringeeChat {
             Conversation.listFromJson(jsonDecode(result['conversations']));
       }
       Toast.show(result['conversations'] ?? "Gett conversation null!", context,
+          duration: 10);
+      Toast.show(result['debug'] ?? "Gett conversation debug null!", context,
           duration: 10);
     } catch (e) {
       Toast.show("Gett conversations error: $e!", context, duration: 10);
@@ -146,6 +149,8 @@ class StringeeChat {
             result['messages'] != null) {
           messages = Message.listFromJson(jsonDecode(result['messages']));
         }
+        Toast.show(result['debug'] ?? "Gett mes debug null!", context,
+            duration: 10);
         Toast.show(result['messages'] ?? "Gett messages null!", context,
             duration: 10);
       }
