@@ -3,6 +3,7 @@ package com.stringee.stringeeflutterplugin;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.stringee.StringeeClient;
@@ -1128,9 +1129,11 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         client.getLastConversations(count, new CallbackListener<List<Conversation>>() {
             @Override
             public void onSuccess(final List<Conversation> conversations) {
+                Toast.makeText(registrar.context(), conversations.toString(), Toast.LENGTH_LONG).show();
                 final String stringConversationPrint = new Gson().toJson(conversations);
                 System.out.println("---- Conversation ----");
                 System.out.println(stringConversationPrint);
+                Toast.makeText(registrar.context(), stringConversationPrint, Toast.LENGTH_LONG).show();
                 List<ConversationModel> customConversation = new ArrayList<>();
                 for (Conversation conversation : conversations
                 ) {
