@@ -138,9 +138,9 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         else if (call.method.equals("sendMessageText")) {
             sendMessageText((String) call.argument("conversationId"), (String) call.argument("message"), result);
         } else if (call.method.equals("sendMessagePicture")) {
-            sendMessagePicture((String) call.argument("conversationId"), result);
+            sendMessageFile((String) call.argument("conversationId"),2, (String) call.argument("file"), result);
         } else if (call.method.equals("sendMessageAudio")) {
-            sendMessageAudio((String) call.argument("conversationId"), result);
+            sendMessageFile((String) call.argument("conversationId"), 4, (String) call.argument("file"), result);
         } else if (call.method.equals("getMessageFormLocal")) {
             getMessageFormLocal((String) call.argument("conversationId"), (int) call.argument("count"), result);
         } else if (call.method.equals("getMessageFormStringee")) {
@@ -1295,12 +1295,66 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         });
     }
 
-    public void sendMessagePicture(String conversationId, final MethodChannel.Result result) {
+    public void sendMessageFile(String conversationId, final int type,final String path, final MethodChannel.Result result) {
+        if (client == null) {
+            Map map = new HashMap();
+            map.put("status", false);
+            map.put("code", -1);
+            map.put("message", "StringeeClient is not initialized or connected.");
+            result.success(map);
+            return;
+        }
+        client.getConversation(conversationId, new CallbackListener<Conversation>() {
+            @Override
+            public void onSuccess(Conversation conversation) {
+                Message message = new Message(type);
+                message.setFilePath(path);
+                if(type == 3 || type == 4) message.setDuration(60000);
+                conversation.sendMessage(client, message, new StatusListener() {
+                    @Override
+                    public void onSuccess() {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Map map = new HashMap();
+                                map.put("status", true);
+                                map.put("code", 0);
+                                map.put("message", "Success");
+                                result.success(map);
+                            }
+                        });
+                    }
 
-    }
+                    @Override
+                    public void onError(final StringeeError error) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Map map = new HashMap();
+                                map.put("status", false);
+                                map.put("code", error.getCode());
+                                map.put("message", error.getMessage());
+                                result.success(map);
+                            }
+                        });
+                    }
+                });
+            }
 
-    public void sendMessageAudio(String conversationId, final MethodChannel.Result result) {
-
+            @Override
+            public void onError(final StringeeError error) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Map map = new HashMap();
+                        map.put("status", false);
+                        map.put("code", error.getCode());
+                        map.put("message", error.getMessage());
+                        result.success(map);
+                    }
+                });
+            }
+        });
     }
 
     public void getMessageFormLocal(String conversationId, int count, final MethodChannel.Result result) {

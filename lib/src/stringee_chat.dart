@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:stringee_flutter_plugin/src/model/conversation.dart';
@@ -100,17 +101,33 @@ class StringeeChat {
   //=====================================================================
   //Message
   Future<bool> sendMessage(
-      StringeeMessageType type, String conversationId, String message) async {
+      StringeeMessageType type, String conversationId, {String message, File file}) async {
     Map params;
     bool status = false;
-    if (conversationId != null && message != null && type != null) {
-      params = {"conversationId": conversationId, "message": message};
-      final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
-          .invokeMethod("sendMessageText", params);
-      if (result != null) status = result['status'] ?? false;
-    } else {
-      print(
-          "--Send message need: conversationId != null && message != null && type != null");
+    if(conversationId != null) return status;
+    switch(type){
+      case StringeeMessageType.text:
+        params = {"conversationId": conversationId, "message": message};
+        final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
+            .invokeMethod("sendMessageText", params);
+        if (result != null) status = result['status'] ?? false;
+        break;
+      case StringeeMessageType.audio:
+        params = {"conversationId": conversationId, "file": file?.path};
+        final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
+            .invokeMethod("sendMessagePicture", params);
+        if (result != null) status = result['status'] ?? false;
+        break;
+      case StringeeMessageType.picture:
+        params = {"conversationId": conversationId, "file": file?.path};
+        final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
+            .invokeMethod("sendMessageAudio", params);
+        if (result != null) status = result['status'] ?? false;
+        break;
+      default:
+        print(
+          "--Send message need: type != null");
+        break;
     }
     return status;
   }

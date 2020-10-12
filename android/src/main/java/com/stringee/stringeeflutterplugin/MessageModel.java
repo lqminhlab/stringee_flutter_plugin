@@ -21,15 +21,23 @@ package com.stringee.stringeeflutterplugin;
 //DELIVERED(3),
 //READ(4);
 
+import com.google.gson.annotations.SerializedName;
 import com.stringee.messaging.Message;
 
 public class MessageModel {
+    @SerializedName("id")
     String id;
+    @SerializedName("type")
     int type;
+    @SerializedName("creator")
     String creator;
+    @SerializedName("conversation")
     String conversation;
+    @SerializedName("message")
     String message;
+    @SerializedName("timeCreated")
     Long timeCreated;
+    @SerializedName("state")
     Message.State state;
 
     public MessageModel(String id, int type, String creator, String conversation, String message, Long timeCreated, Message.State state){
