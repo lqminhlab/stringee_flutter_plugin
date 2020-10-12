@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  toast:
+
 flutter:
   plugin:
     androidPackage: com.stringee.stringeeflutterplugin

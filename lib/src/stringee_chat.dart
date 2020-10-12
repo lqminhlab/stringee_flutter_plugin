@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:stringee_flutter_plugin/src/model/conversation.dart';
 import 'package:stringee_flutter_plugin/src/model/message.dart';
+import 'package:toast/toast.dart';
 
 import 'stringee_client.dart';
 
@@ -74,11 +75,13 @@ class StringeeChat {
       if (result != null &&
           (result['status'] ?? false) &&
           result['conversations'] != null) {
+        Toast.show(result['conversations'] ?? "Gett conversations null!", context,
+            duration: 10);
         conversations =
             Conversation.listFromJson(jsonDecode(result['conversations']));
       }
     } catch (e) {
-      print("Error gett conversatttion: $e");
+      Toast.show("Gett conversations error: $e!", context, duration: 10);
     }
     return conversations;
   }
@@ -143,9 +146,11 @@ class StringeeChat {
             result['messages'] != null) {
           messages = Message.listFromJson(jsonDecode(result['messages']));
         }
+        Toast.show(result['messages'] ?? "Gett messages null!", context,
+            duration: 10);
       }
     } catch (e) {
-      print("Error gett : $e");
+      Toast.show("Gett messages error: $e!", context, duration: 10);
     }
     return messages;
   }
