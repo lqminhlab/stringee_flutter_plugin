@@ -30,17 +30,17 @@ class Conversation {
       if (json == null) return null;
       if (!(json is Map)) json = jsonDecode(json);
       return Conversation(
-          id: json['id']?.toString(),
-          name: json['name']?.toString(),
-          creator: json['creator']?.toString(),
-          lastMessage: LastMessage.fromJson(json['lastMessage']),
-          participants: json['participants'] != null
-              ? StringeeUser.listFromJson(json['participants'])
+          id: json['c']?.toString(),
+          name: json['d']?.toString(),
+          creator: json['p']?.toString(),
+          lastMessage: LastMessage.fromJson(json['v']),
+          participants: json['e'] != null
+              ? StringeeUser.listFromJson(json['e'])
               : [],
-          state: json['state'],
-          lastTime: json['lastTime'],
-          timeCreated: json['timeCreated'],
-          unread: json['unread']);
+          state: json['s'],
+          lastTime: json['m'],
+          timeCreated: json['i'],
+          unread: json['o']);
     } catch (e) {
       print('--error map conversation:$e');
       return null;

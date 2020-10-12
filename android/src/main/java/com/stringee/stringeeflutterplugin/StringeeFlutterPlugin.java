@@ -1128,16 +1128,8 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         client.getLastConversations(count, new CallbackListener<List<Conversation>>() {
             @Override
             public void onSuccess(final List<Conversation> conversations) {
-                final String stringConversationPrint = new Gson().toJson(conversations);
+                final String stringConversation = new Gson().toJson(conversations);
                 System.out.println("---- Conversation ----");
-                System.out.println(stringConversationPrint);
-                List<ConversationModel> customConversation = new ArrayList<>();
-                for (Conversation conversation : conversations
-                ) {
-                    customConversation.add(new ConversationModel(conversation.getId(), conversation.getCreator(), conversation.getName(), conversation.getParticipants(), conversation.getCreateAt(), conversation.getState(), conversation.getTotalUnread(), conversation.getLastMsg(), conversation.getLastTimeNewMsg()));
-                }
-                final String stringConversation = new Gson().toJson(customConversation);
-                System.out.println("---- Current conversation ----");
                 System.out.println(stringConversation);
                 handler.post(new Runnable() {
                     @Override
@@ -1147,7 +1139,6 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                         map.put("code", 0);
                         map.put("message", "Success!");
                         map.put("conversations", stringConversation);
-                        map.put("debug", stringConversationPrint);
                         result.success(map);
                     }
                 });
@@ -1377,16 +1368,8 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                 conversation.getLastMessages(client, count, new CallbackListener<List<Message>>() {
                     @Override
                     public void onSuccess(final List<Message> messages) {
-                        final String stringMessagesPrint = new Gson().toJson(messages);
+                        final String stringMessages = new Gson().toJson(messages);
                         System.out.println("---- Messages ----");
-                        System.out.println(stringMessagesPrint);
-                        List<MessageModel> customMessages = new ArrayList<>();
-                        for (Message msg : messages
-                        ) {
-                            customMessages.add(new MessageModel(msg.a, msg.getType(), msg.z, msg.c, msg.l, msg.f, msg.i));
-                        }
-                        final String stringMessages = new Gson().toJson(customMessages);
-                        System.out.println("---- Current messages ----");
                         System.out.println(stringMessages);
                         handler.post(new Runnable() {
                             @Override
@@ -1396,7 +1379,6 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                                 map.put("code", 0);
                                 map.put("message", "Success!");
                                 map.put("messages", stringMessages);
-                                map.put("debug", stringMessagesPrint);
                                 result.success(map);
                             }
                         });
