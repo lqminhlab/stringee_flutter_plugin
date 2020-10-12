@@ -99,7 +99,7 @@ class StringeeChat {
       {String message, File file}) async {
     Map params;
     bool status = false;
-    if (conversationId != null) return status;
+    if (conversationId == null) return status;
     switch (type) {
       case StringeeMessageType.text:
         params = {"conversationId": conversationId, "message": message};
