@@ -111,14 +111,14 @@ class StringeeChat {
       case StringeeMessageType.audio:
         params = {"conversationId": conversationId, "file": file?.path};
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
-            .invokeMethod("sendMessagePicture", params);
+            .invokeMethod("sendMessageAudio", params);
         if (result != null) status = result['status'] ?? false;
         print("-- message: ${result['message']}");
         break;
       case StringeeMessageType.picture:
         params = {"conversationId": conversationId, "file": file?.path};
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
-            .invokeMethod("sendMessageAudio", params);
+            .invokeMethod("sendMessagePicture", params);
         if (result != null) status = result['status'] ?? false;
         print("-- message: ${result['message']}");
         break;
