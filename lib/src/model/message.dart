@@ -13,6 +13,7 @@ class Message {
   String _creator;
   String _id;
   String _message;
+  String _url;
   String _state;
   int _timeCreated;
 
@@ -21,6 +22,8 @@ class Message {
   String get conversation => _conversation;
 
   String get creator => _creator;
+
+  String get url => _url;
 
   String get id => _id;
 
@@ -57,6 +60,7 @@ class Message {
       _state = json["i"];
       _timeCreated = json["g"];
       _type = json['k'];
+      _url = json['s'];
     } catch (e) {
       print('--error map message:$e');
       return;
@@ -76,6 +80,7 @@ class Message {
     map["state"] = _state;
     map['type'] = _type;
     map["timeCreated"] = _timeCreated;
+    map['url'] = _url;
     return map;
   }
 }
