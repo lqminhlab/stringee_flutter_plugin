@@ -28,7 +28,6 @@ class Conversation {
   factory Conversation.fromJson(dynamic json) {
     try {
       if (json == null) return null;
-      if (!(json is Map)) json = jsonDecode(json);
       return Conversation(
           id: json['c']?.toString(),
           name: json['d']?.toString(),

@@ -11,7 +11,7 @@ class StringeeUser {
   factory StringeeUser.fromJson(dynamic json) {
     try {
       if (json == null) return null;
-      if (!(json is Map)) json = jsonDecode(json);
+      // if (!(json is Map)) json = jsonDecode(json);
       return StringeeUser(
           name: json['name'],
           avatarUrl: json['avatarUrl'],

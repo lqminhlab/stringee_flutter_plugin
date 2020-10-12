@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:stringee_flutter_plugin/src/model/conversation.dart';
 import 'package:stringee_flutter_plugin/src/model/message.dart';
-import 'package:toast/toast.dart';
 
 import 'stringee_client.dart';
 
@@ -44,7 +42,7 @@ class StringeeChat {
 
   //=====================================================================
   //Conversation
-  Future<bool> createConversation(context,
+  Future<bool> createConversation(
       StringeeConversationType type, List<String> userIds) async {
     Map params;
     bool status = false;
@@ -62,8 +60,7 @@ class StringeeChat {
     return status;
   }
 
-  Future<List<Conversation>> getConversations(BuildContext context,
-      {int count = 20}) async {
+  Future<List<Conversation>> getConversations({int count = 20}) async {
     Map params;
     List<Conversation> conversations = [];
     try {
@@ -75,13 +72,11 @@ class StringeeChat {
       if (result != null &&
           (result['status'] ?? false) &&
           result['conversations'] != null) {
-        Toast.show(result['conversations'] ?? "Gett conversations null!", context,
-            duration: 10);
         conversations =
             Conversation.listFromJson(jsonDecode(result['conversations']));
       }
     } catch (e) {
-      Toast.show("Gett conversations error: $e!", context, duration: 10);
+      print("----Error conversattion: $e");
     }
     return conversations;
   }
@@ -100,12 +95,12 @@ class StringeeChat {
 
   //=====================================================================
   //Message
-  Future<bool> sendMessage(
-      StringeeMessageType type, String conversationId, {String message, File file}) async {
+  Future<bool> sendMessage(StringeeMessageType type, String conversationId,
+      {String message, File file}) async {
     Map params;
     bool status = false;
-    if(conversationId != null) return status;
-    switch(type){
+    if (conversationId != null) return status;
+    switch (type) {
       case StringeeMessageType.text:
         params = {"conversationId": conversationId, "message": message};
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
@@ -125,14 +120,13 @@ class StringeeChat {
         if (result != null) status = result['status'] ?? false;
         break;
       default:
-        print(
-          "--Send message need: type != null");
+        print("--Send message need: type != null");
         break;
     }
     return status;
   }
 
-  Future<List<Message>> getMessages(String conversationId, BuildContext context,
+  Future<List<Message>> getMessages(String conversationId,
       {int count = 20}) async {
     Map params;
     List<Message> messages = [];
@@ -146,11 +140,9 @@ class StringeeChat {
             result['messages'] != null) {
           messages = Message.listFromJson(jsonDecode(result['messages']));
         }
-        Toast.show(result['messages'] ?? "Gett messages null!", context,
-            duration: 10);
       }
     } catch (e) {
-      Toast.show("Gett messages error: $e!", context, duration: 10);
+      print("----Error messages: $e");
     }
     return messages;
   }

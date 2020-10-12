@@ -50,7 +50,6 @@ class Message {
   Message.fromJson(dynamic json) {
     try {
       if (json == null) return;
-      if (!(json is Map)) json = jsonDecode(json);
       _conversation = json["c"];
       _creator = json["z"];
       _id = json["a"];
