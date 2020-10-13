@@ -1299,6 +1299,23 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         client.getConversation(conversationId, new CallbackListener<Conversation>() {
             @Override
             public void onSuccess(Conversation conversation) {
+                try{
+
+                    Message message = new Message(type);
+                    message.setFilePath(path);
+                    if(type == 3 || type == 4) message.setDuration(60000);
+                }catch (Exception e){
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Map map = new HashMap();
+                            map.put("status", true);
+                            map.put("code", 0);
+                            map.put("message", "Chán");
+                            result.success(map);
+                        }
+                    });
+                }
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
