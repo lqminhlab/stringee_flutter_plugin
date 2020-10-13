@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class StringeeUser {
   String userId;
   String name;

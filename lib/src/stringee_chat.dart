@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:stringee_flutter_plugin/src/model/conversation.dart';
 import 'package:stringee_flutter_plugin/src/model/message.dart';
+import 'package:toast/toast.dart';
 
 import 'stringee_client.dart';
 
@@ -96,7 +97,7 @@ class StringeeChat {
   //=====================================================================
   //Message
   Future<bool> sendMessage(StringeeMessageType type, String conversationId,
-      {String message,  String path}) async {
+      {String message, String path, BuildContext context}) async {
     Map params;
     bool status = false;
     if (conversationId == null) return status;
@@ -106,21 +107,26 @@ class StringeeChat {
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
             .invokeMethod("sendMessageText", params);
         if (result != null) status = result['status'] ?? false;
-        print("-- message: ${result['message']}");
         break;
       case StringeeMessageType.audio:
         params = {"conversationId": conversationId, "file": path};
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
             .invokeMethod("sendMessageAudio", params);
-        if (result != null) status = result['status'] ?? false;
-        print("-- message: ${result['message']}");
+        if (result != null) {
+          status = result['status'] ?? false;
+          if (context != null)
+            Toast.show("Message: ${result['message']}", context, duration: 2);
+        }
         break;
       case StringeeMessageType.picture:
         params = {"conversationId": conversationId, "file": path};
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
             .invokeMethod("sendMessagePicture", params);
-        if (result != null) status = result['status'] ?? false;
-        print("-- message: ${result['message']}");
+        if (result != null) {
+          status = result['status'] ?? false;
+          if (context != null)
+            Toast.show("Message: ${result['message']}", context, duration: 2);
+        }
         break;
       default:
         print("--Send message need: type != null");
