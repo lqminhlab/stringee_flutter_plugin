@@ -1299,78 +1299,51 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         client.getConversation(conversationId, new CallbackListener<Conversation>() {
             @Override
             public void onSuccess(Conversation conversation) {
+                Message message = new Message(type);
+                message.setFilePath(path);
+                if(type == 3 || type == 4) message.setDuration(60000);
                 try{
+                    conversation.sendMessage(client, message, new StatusListener() {
+                        @Override
+                        public void onSuccess() {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Map map = new HashMap();
+                                    map.put("status", true);
+                                    map.put("code", 0);
+                                    map.put("message", "Success");
+                                    result.success(map);
+                                }
+                            });
+                        }
 
-                    Message message = new Message(type);
-                    message.setFilePath(path);
-                    if(type == 3 || type == 4) message.setDuration(60000);
-                }catch (Exception e){
+                        @Override
+                        public void onError(final StringeeError error) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Map map = new HashMap();
+                                    map.put("status", false);
+                                    map.put("code", error.getCode());
+                                    map.put("message", error.getMessage());
+                                    result.success(map);
+                                }
+                            });
+                        }
+                    });
+                }catch (final Exception exp){
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             Map map = new HashMap();
-                            map.put("status", true);
-                            map.put("code", 0);
-                            map.put("message", "Chán");
+                            map.put("status", false);
+                            map.put("code", -1);
+                            map.put("message", exp.getMessage());
                             result.success(map);
                         }
                     });
                 }
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Map map = new HashMap();
-                        map.put("status", false);
-                        map.put("code", -1);
-                        map.put("message", "Chán");
-                        result.success(map);
-                    }
-                });
-//                try{
-//                    Message message = new Message(type);
-//                    message.setFilePath(path);
-//                    if(type == 3 || type == 4) message.setDuration(60000);
-//                    conversation.sendMessage(client, message, new StatusListener() {
-//                        @Override
-//                        public void onSuccess() {
-//                            handler.post(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    Map map = new HashMap();
-//                                    map.put("status", true);
-//                                    map.put("code", 0);
-//                                    map.put("message", "Success");
-//                                    result.success(map);
-//                                }
-//                            });
-//                        }
-//
-//                        @Override
-//                        public void onError(final StringeeError error) {
-//                            handler.post(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    Map map = new HashMap();
-//                                    map.put("status", false);
-//                                    map.put("code", error.getCode());
-//                                    map.put("message", error.getMessage());
-//                                    result.success(map);
-//                                }
-//                            });
-//                        }
-//                    });
-//                }catch (final Exception exp){
-//                    handler.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Map map = new HashMap();
-//                            map.put("status", false);
-//                            map.put("code", -1);
-//                            map.put("message", exp.getMessage());
-//                            result.success(map);
-//                        }
-//                    });
-//                }
             }
 
             @Override
