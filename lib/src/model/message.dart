@@ -54,7 +54,7 @@ class Message {
     try {
       if (json == null) return;
       _conversation = json["c"];
-      _creator = json["z"];
+      _creator = json["e"];
       _id = json["a"];
       _message = json["l"];
       _state = json["i"];
