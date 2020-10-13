@@ -96,7 +96,7 @@ class StringeeChat {
   //=====================================================================
   //Message
   Future<bool> sendMessage(StringeeMessageType type, String conversationId,
-      {String message, File file}) async {
+      {String message,  String path}) async {
     Map params;
     bool status = false;
     if (conversationId == null) return status;
@@ -109,14 +109,14 @@ class StringeeChat {
         print("-- message: ${result['message']}");
         break;
       case StringeeMessageType.audio:
-        params = {"conversationId": conversationId, "file": file?.path};
+        params = {"conversationId": conversationId, "file": path};
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
             .invokeMethod("sendMessageAudio", params);
         if (result != null) status = result['status'] ?? false;
         print("-- message: ${result['message']}");
         break;
       case StringeeMessageType.picture:
-        params = {"conversationId": conversationId, "file": file?.path};
+        params = {"conversationId": conversationId, "file": path};
         final Map<dynamic, dynamic> result = await StringeeClient.methodChannel
             .invokeMethod("sendMessagePicture", params);
         if (result != null) status = result['status'] ?? false;
