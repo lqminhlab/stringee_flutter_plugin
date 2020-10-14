@@ -587,7 +587,6 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         if (customData != null) {
             stringeeCall.setCustom(customData);
         }
-        stringeeCall.setCustom("customData by minh minh");
         if (videoResolution != null) {
             if (videoResolution.equalsIgnoreCase("NORMAL")) {
                 stringeeCall.setQuality(StringeeConstant.QUALITY_NORMAL);
