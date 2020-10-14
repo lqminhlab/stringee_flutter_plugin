@@ -3,6 +3,7 @@ package com.stringee.stringeeflutterplugin;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.stringee.StringeeClient;
@@ -17,6 +18,7 @@ import com.stringee.messaging.ConversationOptions;
 import com.stringee.messaging.Message;
 import com.stringee.messaging.User;
 import com.stringee.messaging.listeners.CallbackListener;
+import com.stringee.stringeeflutterplugin.utils.StringeeAudioManager;
 
 
 import org.json.JSONException;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
@@ -45,6 +48,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
     private Result makeCallResult;
     private static EventChannel.EventSink mEventSink;
     private Handler handler;
+    private StringeeAudioManager audioManager;
 
     public StringeeFlutterPlugin(Registrar registrar) {
         this.registrar = registrar;
@@ -81,7 +85,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             }
         }
         /*
-        Messages
+        Call
          */
         else if (call.method.equals("makeCall")) {
             String from = call.argument("from");
@@ -98,11 +102,9 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             if (call.hasArgument("videoResolution")) {
                 resolution = call.argument("videoResolution");
             }
-            makeCall(from, to, isVideoCall, customData, resolution, result);
-        } else if (call.method.equals("initAnswer")) {
-            initAnswer((String) call.arguments, result);
+            makeCall(registrar.context(), from, to, isVideoCall, customData, resolution, result);
         } else if (call.method.equals("answer")) {
-            answer((String) call.arguments, result);
+            answer(registrar.context(), (String) call.arguments, result);
         } else if (call.method.equals("hangup")) {
             hangup((String) call.arguments, result);
         } else if (call.method.equals("reject")) {
@@ -138,7 +140,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         else if (call.method.equals("sendMessageText")) {
             sendMessageText((String) call.argument("conversationId"), (String) call.argument("message"), result);
         } else if (call.method.equals("sendMessagePicture")) {
-            sendMessageFile((String) call.argument("conversationId"),2, (String) call.argument("file"), result);
+            sendMessageFile((String) call.argument("conversationId"), 2, (String) call.argument("file"), result);
         } else if (call.method.equals("sendMessageAudio")) {
             sendMessageFile((String) call.argument("conversationId"), 4, (String) call.argument("file"), result);
         } else if (call.method.equals("getMessageFormLocal")) {
@@ -579,7 +581,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
      * @param customData
      * @param videoResolution
      */
-    public void makeCall(String from, String to, boolean isVideoCall, String customData, String videoResolution, MethodChannel.Result result) {
+    public void makeCall(Context context, String from, String to, final boolean isVideoCall, String customData, String videoResolution, MethodChannel.Result result) {
         StringeeCall stringeeCall = new StringeeCall(client, from, to);
         stringeeCall.setVideoCall(isVideoCall);
         if (customData != null) {
@@ -594,51 +596,37 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         }
         stringeeCall.setCallListener(this);
         makeCallResult = result;
-        stringeeCall.makeCall();
-    }
 
-    /**
-     * Init an answer
-     * Close because initAnswer function in sdk has remove
-     *
-     * @param callId
-     */
-    public void initAnswer(String callId, MethodChannel.Result result) {
-//        if (client == null) {
-//            Map map = new HashMap();
-//            map.put("status", false);
-//            map.put("code", -1);
-//            map.put("message", "StringeeClient is not initialized or connected.");
-//            result.success(map);
-//            return;
-//        }
-//
-//        if (callId == null || callId.length() == 0) {
-//            Map map = new HashMap();
-//            map.put("status", false);
-//            map.put("code", -2);
-//            map.put("message", "The call id is invalid.");
-//            result.success(map);
-//            return;
-//        }
-//
-//        StringeeCall call = StringeeManager.getInstance().getCallsMap().get(callId);
-//        if (call == null) {
-//            Map map = new HashMap();
-//            map.put("status", false);
-//            map.put("code", -3);
-//            map.put("message", "The call is not found.");
-//            result.success(map);
-//            return;
-//        }
-//
-//        call.setCallListener(this);
-//        call.initAnswer(registrar.context(), client);
-//        Map map = new HashMap();
-//        map.put("status", true);
-//        map.put("code", 0);
-//        map.put("message", "Success");
-//        result.success(map);
+        audioManager = StringeeAudioManager.create(context);
+        audioManager.start(new StringeeAudioManager.AudioManagerEvents() {
+            @Override
+            public void onAudioDeviceChanged(StringeeAudioManager.AudioDevice selectedAudioDevice, Set<StringeeAudioManager.AudioDevice> availableAudioDevices) {
+                if (!isVideoCall) {
+                    switch (selectedAudioDevice) {
+                        case WIRED_HEADSET:
+                            audioManager.setSpeakerphoneOn(false);
+                            break;
+                        case BLUETOOTH:
+                            audioManager.setSpeakerphoneOn(false);
+                            break;
+                        case SPEAKER_PHONE:
+                            audioManager.setSpeakerphoneOn(isVideoCall);
+                            break;
+                    }
+                } else {
+                    if (selectedAudioDevice == StringeeAudioManager.AudioDevice.WIRED_HEADSET || selectedAudioDevice == StringeeAudioManager.AudioDevice.BLUETOOTH) {
+                        audioManager.setSpeakerphoneOn(false);
+                    } else {
+                        audioManager.setSpeakerphoneOn(true);
+                    }
+                }
+                Log.d("Stringee", "onAudioManagerDevicesChanged: " + availableAudioDevices + ", "
+                        + "selected: " + selectedAudioDevice);
+            }
+        });
+        stringeeManager.setAudioManager(audioManager);
+
+        stringeeCall.makeCall();
     }
 
     /**
@@ -647,7 +635,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
      * @param callId
      * @param result
      */
-    public void answer(String callId, MethodChannel.Result result) {
+    public void answer(Context context, String callId, MethodChannel.Result result) {
         if (client == null) {
             Map map = new HashMap();
             map.put("status", false);
@@ -675,6 +663,38 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             result.success(map);
             return;
         }
+
+        call.setCallListener(this);
+        final boolean isVideoCall = call.isVideoCall();
+
+        audioManager = StringeeAudioManager.create(context);
+        audioManager.start(new StringeeAudioManager.AudioManagerEvents() {
+            @Override
+            public void onAudioDeviceChanged(StringeeAudioManager.AudioDevice selectedAudioDevice, Set<StringeeAudioManager.AudioDevice> availableAudioDevices) {
+                if (!isVideoCall) {
+                    switch (selectedAudioDevice) {
+                        case WIRED_HEADSET:
+                            audioManager.setSpeakerphoneOn(false);
+                            break;
+                        case BLUETOOTH:
+                            audioManager.setSpeakerphoneOn(false);
+                            break;
+                        case SPEAKER_PHONE:
+                            audioManager.setSpeakerphoneOn(isVideoCall);
+                            break;
+                    }
+                } else {
+                    if (selectedAudioDevice == StringeeAudioManager.AudioDevice.WIRED_HEADSET || selectedAudioDevice == StringeeAudioManager.AudioDevice.BLUETOOTH) {
+                        audioManager.setSpeakerphoneOn(false);
+                    } else {
+                        audioManager.setSpeakerphoneOn(true);
+                    }
+                }
+                Log.d("Stringee", "onAudioManagerDevicesChanged: " + availableAudioDevices + ", "
+                        + "selected: " + selectedAudioDevice);
+            }
+        });
+        stringeeManager.setAudioManager(audioManager);
 
         call.answer();
         Map map = new HashMap();
@@ -690,7 +710,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
      * @param callId
      * @param result
      */
-    public void hangup(String callId, MethodChannel.Result result) {
+    public void hangup(String callId, Result result) {
         if (client == null) {
             Map map = new HashMap();
             map.put("status", false);
@@ -717,6 +737,11 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             map.put("message", "The call is not found.");
             result.success(map);
             return;
+        }
+
+        StringeeAudioManager audioManager = StringeeManager.getInstance().getAudioManager();
+        if (audioManager != null) {
+            audioManager.stop();
         }
 
         call.hangup();
@@ -733,7 +758,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
      * @param callId
      * @param result
      */
-    public void reject(String callId, MethodChannel.Result result) {
+    public void reject(String callId, Result result) {
         if (client == null) {
             Map map = new HashMap();
             map.put("status", false);
@@ -760,6 +785,11 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             map.put("message", "The call is not found.");
             result.success(map);
             return;
+        }
+
+        StringeeAudioManager audioManager = StringeeManager.getInstance().getAudioManager();
+        if (audioManager != null) {
+            audioManager.stop();
         }
 
         call.reject();
@@ -933,31 +963,36 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
      * @param on
      * @param result
      */
-    public void setSpeakerphoneOn(String callId, boolean on, MethodChannel.Result result) {
-//        if (callId == null || callId.length() == 0) {
-//            Map map = new HashMap();
-//            map.put("status", false);
-//            map.put("code", -2);
-//            map.put("message", "The call id is invalid.");
-//            result.success(map);
-//            return;
-//        }
-//
-//        StringeeCall call = StringeeManager.getInstance().getCallsMap().get(callId);
-//        if (call == null) {
-//            Map map = new HashMap();
-//            map.put("status", false);
-//            map.put("code", -3);
-//            map.put("message", "The call is not found.");
-//            result.success(map);
-//            return;
-//        }
-//        call.setSpeakerphoneOn(on);
-//        Map map = new HashMap();
-//        map.put("status", true);
-//        map.put("code", 0);
-//        map.put("message", "Success");
-//        result.success(map);
+    public void setSpeakerphoneOn(String callId, boolean on, Result result) {
+        if (callId == null || callId.length() == 0) {
+            Map map = new HashMap();
+            map.put("status", false);
+            map.put("code", -2);
+            map.put("message", "The call id is invalid.");
+            result.success(map);
+            return;
+        }
+
+        StringeeCall call = StringeeManager.getInstance().getCallsMap().get(callId);
+        if (call == null) {
+            Map map = new HashMap();
+            map.put("status", false);
+            map.put("code", -3);
+            map.put("message", "The call is not found.");
+            result.success(map);
+            return;
+        }
+
+        StringeeAudioManager audioManager = StringeeManager.getInstance().getAudioManager();
+        if (audioManager != null) {
+            audioManager.setSpeakerphoneOn(on);
+        }
+
+        Map map = new HashMap();
+        map.put("status", true);
+        map.put("code", 0);
+        map.put("message", "Success");
+        result.success(map);
     }
 
     /**
@@ -1287,7 +1322,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
         });
     }
 
-    public void sendMessageFile(String conversationId, final int type,final String path, final MethodChannel.Result result) {
+    public void sendMessageFile(String conversationId, final int type, final String path, final MethodChannel.Result result) {
         if (client == null) {
             Map map = new HashMap();
             map.put("status", false);
@@ -1301,8 +1336,8 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             public void onSuccess(Conversation conversation) {
                 Message message = new Message(type);
                 message.setFilePath(path);
-                if(type == 3 || type == 4) message.setDuration(60000);
-                try{
+                if (type == 3 || type == 4) message.setDuration(60000);
+                try {
                     conversation.sendMessage(client, message, new StatusListener() {
                         @Override
                         public void onSuccess() {
@@ -1332,7 +1367,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                             });
                         }
                     });
-                }catch (final Exception exp){
+                } catch (final Exception exp) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
