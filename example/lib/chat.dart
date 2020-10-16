@@ -82,7 +82,7 @@ class _ChatState extends State<Chat> {
   }
 
   _sendMessage()async{
-    final rs = await _stringeeChat.sendMessage(StringeeMessageType.text, conversationId, message);
+    final rs = await _stringeeChat.sendMessage(StringeeMessageType.text, conversationId, message: message);
     print('----Data send message----');
     print(rs?.toString());
   }
