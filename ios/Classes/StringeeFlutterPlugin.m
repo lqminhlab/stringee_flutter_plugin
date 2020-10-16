@@ -20,7 +20,6 @@ static NSString *STEIncomingCall               = @"incomingCall";
 static NSString *STEDidReceiveCustomMessage    = @"didReceiveCustomMessage";
 
 // Call
-
 static NSString *STEDidChangeSignalingState     = @"didChangeSignalingState";
 static NSString *STEDidChangeMediaState         = @"didChangeMediaState";
 static NSString *STEDidReceiveLocalStream       = @"didReceiveLocalStream";
@@ -113,6 +112,47 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     else if ([call.method isEqualToString:@"enableVideo"]) {
         [self enableVideo:call.arguments result:result];
     }
+
+    //Conversation
+    else if ([call.method isEqualToString:@"createConversationChat"]) {
+        [self createConversationChat:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"createConversationGroup"]) {
+        [self createConversationGroup:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"getConversation"]) {
+        [self getConversation:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"getConversations"]) {
+        [self getConversations:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"deleteConversation"]) {
+        [self deleteConversation:call.arguments result:result];
+    }
+
+    //Message
+    else if ([call.method isEqualToString:@"sendMessageText"]) {
+        [self sendMessageText:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"sendMessagePicture"]) {
+        [self sendMessageFile:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"sendMessageAudio"]) {
+        [self sendMessageFile:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"getMessageFormStringee"]) {
+        [self getMessageFormStringee:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"markAsRead"]) {
+        [self markAsRead:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"deleteMessage"]) {
+        [self deleteMessage:call.arguments result:result];
+    }
+    else if ([call.method isEqualToString:@"pinOrUnpinMessage"]) {
+        [self pinOrUnpinMessage:call.arguments result:result];
+    }
+
     else {
         result(FlutterMethodNotImplemented);
     }
@@ -582,6 +622,146 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     
     [call enableLocalVideo:enableVideo];
     result(@{STEStatus : @(YES), STECode : @(0), STEMessage: @"Success."});
+}
+
+- (void)createConversationChat:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+
+    NSDictionary *data = (NSDictionary *)arguments;
+    NSString *userId = [data objectForKey:@"userId"];
+
+    StringeeIdentity *iden1 = [StringeeIdentity new];
+    iden1.userId = _client.userId";
+    StringeeIdentity *iden2 = [StringeeIdentity new];
+    iden2.userId = userId;
+    NSSet *parts = [[NSSet alloc] initWithObjects:iden1, iden2, nil];
+
+    StringeeConversationOption *options = [StringeeConversationOption new];
+    options.isGroup = false;
+
+    NSString name = "Conv - ";
+    name = [name stringByAppendingString:userId];
+
+    [_client createConversationWithName:name participants:parts options:options completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
+        result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+    }];
+}
+
+    //Chưa cần thiết
+- (void)createConversationGroup:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+}
+
+    //Chưa lấy được conversation
+- (void)getConversation:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+}
+
+- (void)getConversations:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+
+    NSDictionary *data = (NSDictionary *)arguments;
+    int count = [data objectForKey:@"count"];
+
+    [stringeeClient getLastConversationsWithCount:count completionHandler:^(BOOL status, int code, NSString *message, NSArray<StringeeConversation *> *conversations) {
+        if(status){
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:conversations options:NSJSONWritingPrettyPrinted error:&error];
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"conversations": jsonString});
+        }else{
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+        }
+    }];
+}
+
+    //Chưa lấy được conversation
+- (void)deleteConversation:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+
+    NSDictionary *data = (NSDictionary *)arguments;
+    NSString *conversationId = [data objectForKey:@"conversationId"];
+
+     //  [conversation deleteWithCompletionHandler:^(BOOL status, int code, NSString *message) {
+     //      result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+     //  }];
+}
+
+    //Chưa lấy được conversation
+- (void)sendMessageText:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+}
+
+    //Chưa lấy được conversation
+- (void)sendMessageFile:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+}
+
+    //Chưa lấy được conversation
+- (void)getMessageFormStringee:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+
+    NSDictionary *data = (NSDictionary *)arguments;
+    int count = [data objectForKey:@"count"];
+    NSString *conversationId = [data objectForKey:@"conversationId"];
+
+    //Chưa lấy được conversation
+    //[conversation getLastMessagesWithCount:count completionHandler:^(BOOL status, int code, NSString *message, id data) {
+    //    if(status){
+    //        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message options:NSJSONWritingPrettyPrinted error:&error];
+    //        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    //        result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"conversations": jsonString});
+    //    }else{
+    //        result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+    //    }
+    //}];
+}
+
+    //Chưa lấy được conversation
+- (void)markAsRead:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+}
+
+    //Chưa lấy được conversation
+- (void)deleteMessage:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
+}
+
+    //Chưa lấy được conversation
+- (void)pinOrUnpinMessage:(id)arguments result:(FlutterResult)result {
+    if (!_client || !_client.hasConnected) {
+        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
+        return;
+    }
 }
 
 #pragma mark - Client Delegate

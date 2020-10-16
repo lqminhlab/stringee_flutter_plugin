@@ -143,9 +143,7 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
             sendMessageFile((String) call.argument("conversationId"), 2, (String) call.argument("file"), result);
         } else if (call.method.equals("sendMessageAudio")) {
             sendMessageFile((String) call.argument("conversationId"), 4, (String) call.argument("file"), result);
-        } else if (call.method.equals("getMessageFormLocal")) {
-            getMessageFormLocal((String) call.argument("conversationId"), (int) call.argument("count"), result);
-        } else if (call.method.equals("getMessageFormStringee")) {
+        }else if (call.method.equals("getMessageFormStringee")) {
             getMessageFormStringee((String) call.argument("conversationId"), (int) call.argument("count"), result);
         } else if (call.method.equals("markAsRead")) {
             markAsRead(result);
@@ -1395,10 +1393,6 @@ public class StringeeFlutterPlugin implements MethodCallHandler, EventChannel.St
                 });
             }
         });
-    }
-
-    public void getMessageFormLocal(String conversationId, int count, final MethodChannel.Result result) {
-
     }
 
     public void getMessageFormStringee(String conversationId, final int count, final MethodChannel.Result result) {
