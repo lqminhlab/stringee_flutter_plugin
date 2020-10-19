@@ -79,9 +79,6 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     else if ([call.method isEqualToString:@"makeCall"]) {
         [self makeCall:call.arguments result:result];
     }
-    else if ([call.method isEqualToString:@"initAnswer"]) {
-        [self initAnswer:call.arguments result:result];
-    }
     else if ([call.method isEqualToString:@"answer"]) {
         [self answer:call.arguments result:result];
     }
@@ -138,7 +135,7 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
         [self sendMessageFile:call.arguments result:result];
     }
     else if ([call.method isEqualToString:@"sendMessageAudio"]) {
-        [self sendMessageFile:call.arguments result:result];
+
     }
     else if ([call.method isEqualToString:@"getMessageFormStringee"]) {
         [self getMessageFormStringee:call.arguments result:result];
@@ -304,30 +301,6 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
         
         result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"callInfo" : [self StringeeCall:outgoingCall]});
     }];
-}
-
-- (void)initAnswer:(id)arguments result:(FlutterResult)result {
-    if (!_client || !_client.hasConnected) {
-        result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
-        return;
-    }
-    
-    NSString *callId = (NSString *)arguments;
-    
-    if (!callId || [callId isKindOfClass:[NSNull class]] || !callId.length) {
-        result(@{STEStatus : @(NO), STECode : @(-2), STEMessage: @"Init answer call failed. The callId is invalid."});
-        return;
-    }
-    
-    StringeeCall *call = [_calls objectForKey:callId];
-    
-    if (!call) {
-        result(@{STEStatus : @(NO), STECode : @(-3), STEMessage: @"Init answer call failed. The call is not found."});
-        return;
-    }
-    
-    [call initAnswerCall];
-    result(@{STEStatus : @(YES), STECode : @(0), STEMessage: @"Init answer call successfully."});
 }
 
 - (void)answer:(id)arguments result:(FlutterResult)result {
@@ -624,6 +597,8 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     result(@{STEStatus : @(YES), STECode : @(0), STEMessage: @"Success."});
 }
 
+
+/// Conversation - message
 - (void)createConversationChat:(id)arguments result:(FlutterResult)result {
     if (!_client || !_client.hasConnected) {
         result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
@@ -658,12 +633,24 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     }
 }
 
-    //Chưa lấy được conversation
 - (void)getConversation:(id)arguments result:(FlutterResult)result {
     if (!_client || !_client.hasConnected) {
         result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
         return;
     }
+
+    NSDictionary *data = (NSDictionary *)arguments;
+    NSString *conversationId = [data objectForKey:@"conversationId"];
+
+    [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
+        if(status){
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:conversation options:NSJSONWritingPrettyPrinted error:&error];
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"conversation": jsonString});
+        }else{
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+        }
+    }];
 }
 
 - (void)getConversations:(id)arguments result:(FlutterResult)result {
@@ -675,7 +662,7 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     NSDictionary *data = (NSDictionary *)arguments;
     int count = [data objectForKey:@"count"];
 
-    [stringeeClient getLastConversationsWithCount:count completionHandler:^(BOOL status, int code, NSString *message, NSArray<StringeeConversation *> *conversations) {
+    [_client getLastConversationsWithCount:count completionHandler:^(BOOL status, int code, NSString *message, NSArray<StringeeConversation *> *conversations) {
         if(status){
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:conversations options:NSJSONWritingPrettyPrinted error:&error];
             NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -686,7 +673,6 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     }];
 }
 
-    //Chưa lấy được conversation
 - (void)deleteConversation:(id)arguments result:(FlutterResult)result {
     if (!_client || !_client.hasConnected) {
         result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
@@ -696,28 +682,62 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     NSDictionary *data = (NSDictionary *)arguments;
     NSString *conversationId = [data objectForKey:@"conversationId"];
 
-     //  [conversation deleteWithCompletionHandler:^(BOOL status, int code, NSString *message) {
-     //      result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
-     //  }];
+    [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
+        if(status){
+            [conversation deleteWithCompletionHandler:^(BOOL status, int code, NSString *message) {
+                 result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+            }];
+        }else{
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+        }
+    }];
 }
 
-    //Chưa lấy được conversation
 - (void)sendMessageText:(id)arguments result:(FlutterResult)result {
     if (!_client || !_client.hasConnected) {
         result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
         return;
     }
+
+    NSDictionary *data = (NSDictionary *)arguments;
+    NSString *conversationId = [data objectForKey:@"conversationId"];
+    NSString *text = [data objectForKey:@"message"];
+
+    [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
+        if(status){
+            StringeeMessage *textMsg = [[StringeeTextMessage alloc] initWithText:text metadata:nil];
+            NSError *error;
+            [conversation sendMessage:textMsg error:&error];
+            result(@{STEStatus : @(status), STECode : 0, STEMessage: "Success!"});
+        }else{
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+        }
+    }];
 }
 
-    //Chưa lấy được conversation
 - (void)sendMessageFile:(id)arguments result:(FlutterResult)result {
     if (!_client || !_client.hasConnected) {
         result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
         return;
     }
+
+    NSDictionary *data = (NSDictionary *)arguments;
+    NSString *conversationId = [data objectForKey:@"conversationId"];
+    NSString *pathImage = [data objectForKey:@"file"];
+
+    [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
+        if(status){
+            UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
+            StringeeMessage *photoMsg = [[StringeePhotoMessage alloc] initWithImage: metadata:nil];
+            NSError *error;
+            [conversation sendMessage:photoMsg error:&error];
+            result(@{STEStatus : @(status), STECode : 0, STEMessage: "Success!"});
+        }else{
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+        }
+    }];
 }
 
-    //Chưa lấy được conversation
 - (void)getMessageFormStringee:(id)arguments result:(FlutterResult)result {
     if (!_client || !_client.hasConnected) {
         result(@{STEStatus : @(NO), STECode : @(-1), STEMessage: @"StringeeClient is not initialzied or connected."});
@@ -728,16 +748,21 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     int count = [data objectForKey:@"count"];
     NSString *conversationId = [data objectForKey:@"conversationId"];
 
-    //Chưa lấy được conversation
-    //[conversation getLastMessagesWithCount:count completionHandler:^(BOOL status, int code, NSString *message, id data) {
-    //    if(status){
-    //        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message options:NSJSONWritingPrettyPrinted error:&error];
-    //        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    //        result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"conversations": jsonString});
-    //    }else{
-    //        result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
-    //    }
-    //}];
+    [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
+        if(status){
+            [conversation getLastMessagesWithCount:count completionHandler:^(BOOL status, int code, NSString *message, id data) {
+                if(status){
+                    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message options:NSJSONWritingPrettyPrinted error:&error];
+                    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                    result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"messages": jsonString});
+                }else{
+                    result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+                }
+            }];
+        }else{
+            result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
+        }
+    }];
 }
 
     //Chưa lấy được conversation
