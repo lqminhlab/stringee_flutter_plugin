@@ -644,6 +644,7 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
 
     [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
         if(status){
+            NSError *error;
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:conversation options:NSJSONWritingPrettyPrinted error:&error];
             NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
             result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"conversation": jsonString});
@@ -664,6 +665,7 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
 
     [_client getLastConversationsWithCount:count completionHandler:^(BOOL status, int code, NSString *message, NSArray<StringeeConversation *> *conversations) {
         if(status){
+            NSError *error;
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:conversations options:NSJSONWritingPrettyPrinted error:&error];
             NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
             result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"conversations": jsonString});
@@ -708,7 +710,7 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
             StringeeMessage *textMsg = [[StringeeTextMessage alloc] initWithText:text metadata:nil];
             NSError *error;
             [conversation sendMessage:textMsg error:&error];
-            result(@{STEStatus : @(status), STECode : 0, STEMessage: "Success!"});
+            result(@{STEStatus : @(status), STECode : @0, STEMessage: @"Success!"});
         }else{
             result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
         }
@@ -727,11 +729,11 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
 
     [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
         if(status){
-            UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
-            StringeeMessage *photoMsg = [[StringeePhotoMessage alloc] initWithImage: metadata:nil];
-            NSError *error;
-            [conversation sendMessage:photoMsg error:&error];
-            result(@{STEStatus : @(status), STECode : 0, STEMessage: "Success!"});
+//            UIImage *image = [UIImage imageWithContentsOfFile:pathImage];
+//            StringeeMessage *photoMsg = [[StringeeMessage alloc] ];
+//            NSError *error;
+//            [conversation sendMessage:photoMsg error:&error];
+            result(@{STEStatus : @(status), STECode : @0, STEMessage: @"Success!"});
         }else{
             result(@{STEStatus : @(status), STECode : @(code), STEMessage: message});
         }
@@ -750,8 +752,9 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
 
     [_client getConversationWithConversationId:conversationId completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
         if(status){
-            [conversation getLastMessagesWithCount:count completionHandler:^(BOOL status, int code, NSString *message, id data) {
+            [conversation getLastMessagesWithCount:count loadDeletedMessage:false loadDeletedMessageContent:false completionHandler: ^(BOOL status, int code, NSString *message, id data) {
                 if(status){
+                    NSError *error;
                     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message options:NSJSONWritingPrettyPrinted error:&error];
                     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
                     result(@{STEStatus : @(status), STECode : @(code), STEMessage: message, @"messages": jsonString});
