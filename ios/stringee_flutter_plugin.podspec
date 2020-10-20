@@ -20,5 +20,6 @@ Stringee plugin for flutter.
   s.static_framework = true
 
   s.ios.deployment_target = '8.0'
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
 end
 
