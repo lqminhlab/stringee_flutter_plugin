@@ -1,4 +1,5 @@
 #import "StringeeFlutterPlugin.h"
+#import <Stringee/Stringee.h>
 
 // Channel
 static NSString *STEMethodChannelName = @"com.stringee.flutter.methodchannel";
@@ -609,7 +610,7 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     NSString *userId = [data objectForKey:@"userId"];
 
     StringeeIdentity *iden1 = [StringeeIdentity new];
-    iden1.userId = _client.userId";
+    iden1.userId = _client.userId;
     StringeeIdentity *iden2 = [StringeeIdentity new];
     iden2.userId = userId;
     NSSet *parts = [[NSSet alloc] initWithObjects:iden1, iden2, nil];
