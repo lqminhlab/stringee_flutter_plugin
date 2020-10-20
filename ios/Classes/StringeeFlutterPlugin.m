@@ -1,5 +1,4 @@
 #import "StringeeFlutterPlugin.h"
-#import <Stringee/Stringee.h>
 
 // Channel
 static NSString *STEMethodChannelName = @"com.stringee.flutter.methodchannel";
@@ -618,7 +617,7 @@ static NSString *STEDidHandleOnAnotherDevice    = @"didHandleOnAnotherDevice";
     StringeeConversationOption *options = [StringeeConversationOption new];
     options.isGroup = false;
 
-    NSString name = "Conv - ";
+    NSString *name = @"Conv - ";
     name = [name stringByAppendingString:userId];
 
     [_client createConversationWithName:name participants:parts options:options completionHandler:^(BOOL status, int code, NSString *message, StringeeConversation *conversation) {
